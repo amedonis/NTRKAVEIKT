@@ -1,0 +1,29 @@
+# This file will automatically update with entries for new content after a build and reload
+Items: {
+	Testrer: {
+		DisplayName: Testrer
+		Tooltip: ""
+	}
+
+	Testerioza: {
+		DisplayName: Testerioza
+		Tooltip: ""
+	}
+}
+
+NPCs: {
+	Archer: {
+		TownNPCMood: {
+			Princess_LovesNPC: I like {NPCName}.
+			LikeNPC_Princess: I like {NPCName}.
+			HateCrowded: I hate how crowded I am.
+			DislikeCrowded: I dislike how crowded I am.
+			LoveSpace: I love having so much space.
+			FarFromHome: I am too far from home.
+			NoHome: I hate not having a home.
+			Content: I am content.
+		}
+
+		DisplayName: Archer
+	}
+}
