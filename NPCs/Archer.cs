@@ -18,7 +18,7 @@ namespace Zaranka.NPCs
             NPC.height = 20;
             NPC.aiStyle = 7;
             NPC.defense = 35;
-            NPC.lifeMax = 300;
+            NPC.lifeMax = 3000;
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath1;
             NPC.knockBackResist = 0.5f;
@@ -48,11 +48,14 @@ namespace Zaranka.NPCs
 
         public override List<string> SetNPCNameList()
         {
+            // TODO:
             return new List<string>()
             {
                 "Orion",
                 "Apollo",
-                "Robin"
+                "Robin",
+                "Nogn",
+                "Sylick"
             };
         }
 
@@ -60,6 +63,7 @@ namespace Zaranka.NPCs
         {
             button = "Shop";
             button2 = "This is the second button";
+            button2 = "Quest";
         }
 
         public override void OnChatButtonClicked(bool firstButton, ref string shopName)
@@ -73,12 +77,19 @@ namespace Zaranka.NPCs
         public override void AddShops()
         {
             NPCShop shop = new(Type);
+            // TODO:
             Item woodenArrow = new()
             {
                 isAShopItem = true,
                 shopCustomPrice = 100
             };
+            Item goldenBow = new()
+            {
+                isAShopItem = true,
+                shopCustomPrice = 1
+            };
             shop.Add(woodenArrow)
+                .Add(goldenBow)
                 .Register();
         }
 
@@ -87,6 +98,7 @@ namespace Zaranka.NPCs
             NPC.FindFirstNPC(ModContent.NPCType<Archer>());
             switch (Main.rand.Next(3))
             {
+                // TODO:
                 case 0:
                     return "If you're a gunslinger, you can see yourself out.";
                 case 1:
