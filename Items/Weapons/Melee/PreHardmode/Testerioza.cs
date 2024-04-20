@@ -3,7 +3,6 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.GameContent.Creative;
 
-
 namespace Zaranka.Items.Weapons.Melee.PreHardmode
 {
     internal class Testerioza : ModItem

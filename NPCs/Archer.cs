@@ -1,15 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Steamworks;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Zaranka.Utils.NPCUtils;
+
 
 namespace Zaranka.NPCs
 {
+    public class QuestData
+    {
+        public string QuestName { get; set; }
+        public bool IsCompleted { get; set; }
+        // Add other properties as needed, such as quest objectives and rewards
+    }
+
     [AutoloadHead]
     public class Archer : ModNPC
     {
+        private QuestData currentQuest;
+
         public override void SetDefaults()
         {
             NPC.townNPC = true;
@@ -62,7 +74,6 @@ namespace Zaranka.NPCs
         public override void SetChatButtons(ref string button, ref string button2)
         {
             button = "Shop";
-            button2 = "This is the second button";
             button2 = "Quest";
         }
 
@@ -72,24 +83,36 @@ namespace Zaranka.NPCs
             {
                 shopName = "Shop";
             }
+            if(!firstButton)
+            {
+                if (currentQuest == null)
+                {
+                    // Assign a new quest to the player
+                    currentQuest = new QuestData
+                    {
+                        QuestName = "Gel Collection",
+                        IsCompleted = false
+                        // Add other quest data such as objectives and rewards
+                    };
+                    Main.npcChatText = $"You have been assigned the quest: {currentQuest.QuestName}. Collect 10 gel and return to me.";
+                }
+                else
+                {
+                    // Inform the player that they already have an active quest
+                    Main.npcChatText = "You already have an active quest.";
+                }
+
+            }
         }
 
         public override void AddShops()
         {
             NPCShop shop = new(Type);
-            // TODO:
-            Item woodenArrow = new()
-            {
-                isAShopItem = true,
-                shopCustomPrice = 100
-            };
-            Item goldenBow = new()
-            {
-                isAShopItem = true,
-                shopCustomPrice = 1
-            };
-            shop.Add(woodenArrow)
-                .Add(goldenBow)
+            // TODO: Add more items, quest items after quests are implemented, progression items.
+
+
+            shop.AddWithCustomValue(ItemID.Minishark, Item.buyPrice(copper: 1))
+                .AddWithCustomValue(ItemID.MusketBall, Item.buyPrice(copper:1))
                 .Register();
         }
 
@@ -136,6 +159,48 @@ namespace Zaranka.NPCs
         public override void OnKill()
         {
             Item.NewItem(NPC.GetSource_Death(), NPC.getRect(), ItemID.GoldBow, 1, false, 0, false, false);
+        }
+
+        public override void AI()
+        {
+            // Check if the current quest is active and not completed
+            if (currentQuest != null && !currentQuest.IsCompleted)
+            {
+                // Count the number of gel in the player's inventory
+                int gelCount = 0;
+                for (int i = 0; i < Main.player[Main.myPlayer].inventory.Length; i++)
+                {
+                    if (Main.player[Main.myPlayer].inventory[i].type == ItemID.Gel)
+                    {
+                        gelCount += Main.player[Main.myPlayer].inventory[i].stack;
+                    }
+                }
+
+                // Check if the player has collected enough items to complete the quest
+                if (gelCount >= 10)
+                {
+                    currentQuest.IsCompleted = true;
+
+                    // Remove items from the player's inventory (you may want to adjust this logic based on your game's requirements)
+                    for (int i = 0; i < Main.player[Main.myPlayer].inventory.Length; i++)
+                    {
+                        if (Main.player[Main.myPlayer].inventory[i].type == ItemID.Gel)
+                        {
+                            int stackToRemove = Math.Min(Main.player[Main.myPlayer].inventory[i].stack, 10);
+                            Main.player[Main.myPlayer].inventory[i].stack -= stackToRemove;
+                            if (Main.player[Main.myPlayer].inventory[i].stack <= 0)
+                            {
+                                Main.player[Main.myPlayer].inventory[i].SetDefaults(0);
+                            }
+                            break; // Exit the loop after removing the required gel
+                        }
+                    }
+                    // Provide the player with quest rewards
+                    // You can implement this part based on your game's logic
+                    // For example, you can give the player items, currency, or other rewards
+                    Main.NewText($"Congratulations! You have completed the quest: {currentQuest.QuestName}");
+                }
+            }
         }
     }
 }
