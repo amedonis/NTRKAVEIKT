@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Steamworks;
@@ -6,8 +7,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Zaranka.Utils.NPCUtils;
-using Zaranka.Utils.ArcherQuestInfo;
-
+using Zaranka.Utils.QuestManager;
+using Terraria.ModLoader.IO;
+using Zaranka.Items.Weapons.Archer.PreHardmode;
 
 namespace Zaranka.NPCs.TownNPCs
 {
@@ -15,11 +17,30 @@ namespace Zaranka.NPCs.TownNPCs
     [AutoloadHead]
     public class Archer : ModNPC
     {
-        private ArcherQuestManager currentQuest = new ArcherQuestManager()
+        private QuestManager currentQuest = new QuestManager();
+
+        public static List<string> QuestName { get; } = new List<string>
+    {
+        "Arrow Fletching",
+        "Gel Finder",
+        "Antlion Mandible Gatherer",
+        "Eyes everywhere",
+    };
+
+        public static List<string> QuestDescription { get; } = new List<string>
         {
-            FinishedQuestCount = 0,
-            IsCompletable = false,
-            QuestStarted = false,
+            "I need some arrows to defend this town! Bring me 20 of them so I can feel safe!",
+            "Find slimes and kill them! Collect their gel afterwards and bring it to me! I need 15 gel for some torches",
+            "Kill some desert pesks and bring their loot back to me. Gather 5 Antlion Mandibles.",
+            "I feel like there are eyes everywhere.. Please kill some Demon Eyes and bring their lenses. I need 6 of them"
+        };
+
+        public int[] QuestItemID = {
+            ItemID.WoodenArrow,
+            ItemID.Gel,
+            ItemID.AntlionMandible,
+            ItemID.Lens,
+
         };
 
         public override void SetDefaults()
@@ -78,6 +99,8 @@ namespace Zaranka.NPCs.TownNPCs
 
         public override void OnChatButtonClicked(bool firstButton, ref string shopName)
         {
+            string questName = currentQuest.GetQuestDescription(questName: QuestName[currentQuest.FinishedQuestCount],
+                questDescription: QuestDescription[currentQuest.FinishedQuestCount]);
             if (firstButton)
             {
                 shopName = "Shop";
@@ -87,19 +110,24 @@ namespace Zaranka.NPCs.TownNPCs
                 // If not started -> start quest
                 if (!currentQuest.QuestStarted)
                 {
-                    string questDescription = currentQuest.GetQuestDescription(currentQuest.FinishedQuestCount);
+
+                    string questDescription = currentQuest.GetQuestDescription(questName: QuestName[currentQuest.FinishedQuestCount],
+                questDescription: QuestDescription[currentQuest.FinishedQuestCount]);
                     Main.npcChatText = questDescription;
                     currentQuest.QuestStarted = true;
-                }// If started -. check if you can finish
+                }
                 else
                 {
                     {
-                        if (!currentQuest.CheckIfFinishable() && !currentQuest.IsCompletable)
+
+
+                        if (!currentQuest.CheckIfFinishable(itemID: QuestItemID[currentQuest.FinishedQuestCount]) && !currentQuest.IsCompletable)
                         {
-                            Main.npcChatText = "You don't have enough items";
+                            Main.npcChatText = $"You don't have enough items for {questName}";
                         }
                         else
                         {
+                            Main.npcChatText = "Congratulations! You have completed the quest";
                             Main.npcChatText = GetChat();
                         }
                     }
@@ -115,6 +143,8 @@ namespace Zaranka.NPCs.TownNPCs
 
             shop.AddWithCustomValue(ItemID.Minishark, Item.buyPrice(copper: 1))
                 .AddWithCustomValue(ItemID.MusketBall, Item.buyPrice(copper: 1))
+                .Add<SylBow>()
+                .Add<Medonski>()
                 .Register();
         }
 
@@ -127,11 +157,11 @@ namespace Zaranka.NPCs.TownNPCs
                 case 0:
                     return "If you're a gunslinger, you can see yourself out.";
                 case 1:
-                    return "This is the second case";
+                    return "I hope you brought something usefull";
                 case 2:
-                    return "This is the third case";
+                    return "Can I sniff your feet?";
                 default:
-                    return "This is the default case.";
+                    return "Feeling cute, might talk with the nurse.";
             }
         }
 
@@ -162,6 +192,17 @@ namespace Zaranka.NPCs.TownNPCs
         {
             Item.NewItem(NPC.GetSource_Death(), NPC.getRect(), ItemID.GoldBow, 1, false, 0, false, false);
         }
+
+        public override void LoadData(TagCompound tag)
+        {
+            currentQuest.FinishedQuestCount = tag.GetInt("finishedArcherQuestCount");
+        }
+
+        public override void SaveData(TagCompound tag)
+        {
+            tag["finishedArcherQuestCount"] = currentQuest.FinishedQuestCount;
+        }
+
     }
 }
 
