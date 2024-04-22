@@ -8,9 +8,15 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Items\Arrows\SylArrow.png" />
+    <None Remove="Items\Weapons\Archer\Medonski.png" />
+    <None Remove="Items\Weapons\Archer\PreHardmode\SylBow.png" />
+    <None Remove="Items\Weapons\Archer\SylBow.png" />
     <None Remove="Items\Weapons\Melee\PreHardmode\Testerioza.png" />
     <None Remove="NPCs\Archer.png" />
     <None Remove="NPCs\Archer_Head.png" />
+    <None Remove="NPCs\TownNPCs\Warrior.png" />
+    <None Remove="NPCs\TownNPCs\Warrior_Head.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
